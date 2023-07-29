@@ -1,0 +1,32 @@
+
+  <section class="vh-100">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+          <div class="habit-card">
+            <div class="card-body p-5 text-center">
+              <div class="mt-md-4 pb-5">
+                <h2 class="fw-bold mb-2 text-uppercase text-white-50">Habit Tracker</h2>
+                <p class="text-muted mb-5">
+                  Track your habits here
+                </p>
+                <div class="circle-container-wrapper" id="circle-container-wrapper" onclick="fetchHabitsForDay(event)"></div>
+
+                
+              </div>
+
+              <div class="habit-title">My Habits</div>
+              <ul class="habit-list" id="dynamic-habit-list">
+              </ul>
+
+              <button class="btn btn-lg btn-primary text-white-50 "><a href="add-habit" class="text-white-50">Add Habit</a></button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <script src="/javascripts/mainPage.js"></script>

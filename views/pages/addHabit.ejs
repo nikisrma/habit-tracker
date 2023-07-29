@@ -1,0 +1,38 @@
+
+    <section class="vh-100 gradient-custom">
+      <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="habit-card">
+              <div class="card-body p-5 text-center">
+                <div class="mb-md-5 mt-md-4 pb-5">
+                  <h2 class="fw-bold mb-2 text-uppercase text-beige">Habit Tracker</h2>
+                  <p class=" mb-5 text-beige">Track your habits here</p>
+
+                  <div class="form-outline form-white mb-4">
+                    <label class="form-label" for="habit">Habit Name</label>
+                    <input
+                      type="text"
+                      id="habit"
+                      name="habit"
+                      class="form-control form-control-lg"
+                    />
+                  </div>
+
+                  <button
+                    class="btn btn-outline-light btn-lg px-5 text-beige"
+                    type="submit"
+                    onclick="addHabitSubmit()"
+                  >
+                    Add Habit
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="/javascripts/addHabit.js"></script>
