@@ -143,7 +143,7 @@ module.exports = {
       .isEmpty()
       .withMessage("Habit is required")
       .custom((value) => {
-        return HabitsModel.findOne({ _id: new mongoose.Types.ObjectId(value) }).then((habit) => {
+        return userHabitsModel.findOne({ habit_id: new mongoose.Types.ObjectId(value) }).then((habit) => {
           if (!habit) {
             return Promise.reject("no habit present");
           }

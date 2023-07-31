@@ -81,13 +81,13 @@ async function getHabits() {
     });
 
     const responseData = await response.json();
-
     if (!response.ok) {
       return swal("Error", responseData.message, "error");
     }
     if (responseData.status == 1) {
       const habitData = responseData.data;
-      const date = getCurrentDate();
+      // const date = getCurrentDate();
+      const date = new Date();
       habitData.forEach((habit) => {
         addHabit(habit, date);
       });
@@ -95,17 +95,24 @@ async function getHabits() {
       swal("Error", responseData.message, "error");
     }
   } catch (error) {
+    window.location.href = "/"
     swal("Error", "Something went wrong ! Please try again later.", "error");
   }
 }
+
 
 function addHabit(habit, date) {
   const newHabitItem = document.createElement("li");
   newHabitItem.classList.add("habit-item");
 
-  const newHabitSpan = document.createElement("span");
-  newHabitSpan.textContent = habit.habit_id.name;
-  newHabitItem.appendChild(newHabitSpan);
+  // const newHabitSpan = document.createElement("span");
+  // newHabitSpan.textContent = habit.habit_id.name;
+  // newHabitItem.appendChild(newHabitSpan);
+
+  const newHabitLink = document.createElement("a");
+  newHabitLink.textContent = habit.habit_id.name;
+  newHabitLink.href = `habit-detail?id=${habit.habit_id._id}`;
+  newHabitItem.appendChild(newHabitLink); 
 
   const newHabitCheckbox = document.createElement("input");
   newHabitCheckbox.type = "checkbox";
@@ -138,7 +145,7 @@ async function fetchHabitsForDay(event) {
     const selectedDayDate = event.target.nextSibling.textContent;
     const currentDate = new Date();
     currentDate.setDate(selectedDayDate);
-    let formattedDate = getCurrentDate(currentDate);
+    // let formattedDate = getCurrentDate(currentDate);
 
     try {
       // Call the API to fetch habits for the selected day
@@ -148,7 +155,7 @@ async function fetchHabitsForDay(event) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ date: formattedDate }),
+        body: JSON.stringify({ date: currentDate }),
       });
       if (!response.ok) {
         throw new Error("Failed to fetch habits for the selected day.");
@@ -165,7 +172,7 @@ async function fetchHabitsForDay(event) {
       habitListContainer.innerHTML = "";
 
       habitDataForDay.forEach((habit) => {
-        addHabit(habit, formattedDate);
+        addHabit(habit, currentDate);
       });
       event.target.classList.add("selected");
     } catch (error) {

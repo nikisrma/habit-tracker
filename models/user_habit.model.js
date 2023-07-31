@@ -14,8 +14,8 @@ const formattedDate = getCurrentDate();
 // User schema
 const userHabitSchema = new Schema({
   date: {
-    type: String,
-    default: formattedDate,
+    type: Date,
+    default: new Date(),
   },
   isCompleted: {
     type: Boolean,

@@ -42,6 +42,7 @@ async function loginFormSubmit(data) {
       swal("Error", responseData.message, "error");
     }
   } catch (error) {
+    window.location.href = "/"
     swal("Error", "Something went wrong ! Please try again later.", "error");
   }
 }

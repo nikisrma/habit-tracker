@@ -1,38 +1,21 @@
+<section class="vh-100 gradient-custom">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-8 col-xl-8">
+        <h2 class="text-center mb-4 text-white-50" id="habitDate"></h2>
+        <p class="text-center mb-4" id="habitStreak"></p>
 
-    <section class="vh-100 gradient-custom">
-        <div class="container py-5 h-100">
-          <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col-12 col-md-8 col-lg-8 col-xl-8">
-                <h2 class="text-center mb-4">Habit Tracker - July 27, 2023</h2>
-
-                <div class="habit-card">
-                    <table class="habit-table">
-                      <tr>
-                        <th>Habit</th>
-                        <th>Today</th>
-                        <th>6 days ago</th>
-                        <th>5 days ago</th>
-                        <th>4 days ago</th>
-                        <th>3 days ago</th>
-                        <th>2 days ago</th>
-                        <th>1 day ago</th>
-                      </tr>
-                      <tr>
-                        <td class="habit-name">Reading</td>
-                        <td><i class="icon completed-icon fas fa-check"></i></td>
-                        <td><i class="icon not-completed-icon fas fa-times"></i></td>
-                        <td><i class="icon completed-icon fas fa-check"></i></td>
-                        <td><i class="icon completed-icon fas fa-check"></i></td>
-                        <td><i class="icon completed-icon fas fa-check"></i></td>
-                        <td><i class="icon completed-icon fas fa-check"></i></td>
-                        <td><i class="icon not-completed-icon fas fa-times"></i></td>
-                      </tr>
-                      <!-- Add more rows for each habit -->
-                    </table>
-                  </div>
-        
-            
-                    </div>
-                  </div>
+        <div class="habit-card">
+          
+          <table class="habit-table" id="habitTable">
+            <tbody id="habitTableBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    </section>
+  </div>
+</section>
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="/javascripts/habitdetail.js"></script>

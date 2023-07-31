@@ -57,7 +57,7 @@ module.exports = class userController {
         const token = jwt.sign(
           { user_id: user._id, email: user.email },
           "mysecretKeyf2121",
-          { expiresIn: "2h" }
+          { expiresIn: "36h" }
         );
         await userModel.findOneAndUpdate({ _id: user?._id }, { token: token });
         user = await userModel.findOne(
@@ -82,8 +82,14 @@ module.exports = class userController {
       if (!habits || habits.length == 0) {
         return res.status(500).json({ message: "habits is required" });
       }
-
       const user = await userModel.findById(req.user.user_id);
+      if (user.habits.length > 0) {
+        return res
+          .status(500)
+          .json({
+            message: "You already have added habits.Please skip this page",
+          });
+      }
 
       for (let i = 0; i < habits.length; i++) {
         if (
@@ -128,7 +134,7 @@ module.exports = class userController {
       user.habits.push(habit);
       await user.save();
 
-      res.status(200).send({ message: "Habit added successfully." ,status:1});
+      res.status(200).send({ message: "Habit added successfully.", status: 1 });
     } catch (err) {
       console.error("Error adding habit:", err);
       res.status(500).json({ message: "Internal server error." });
@@ -137,33 +143,43 @@ module.exports = class userController {
 
   static async getHabitsList(req, res) {
     try {
-      let date = req.body.date ? req.body.date : new Date();
-      const formattedDate = getCurrentDate(date);
+      let todayDate = req.body.date ? new Date(req.body.date) : new Date();
+      // const formattedDate = getCurrentDate(date);
+      todayDate.setHours(0, 0, 0, 0); // Set time to start of the day (00:00:00.000)
+      const tomorrow = new Date(todayDate);
+      tomorrow.setDate(todayDate.getDate() + 1); // Set time to start of the next day (00:00:00.000)
+
       let user = req.user;
+
       /** Get habits for user */
       let habitForUser = await habitsModel.find({
         user: new mongoose.Types.ObjectId(user.user_id),
       });
 
-      if (habitForUser.length == 0) {
+      if (habitForUser.length === 0) {
         return res.status(409).json({ message: "No habits found" });
-      }
-       else {
+      } else {
         var getHabitsForDate = [];
         getHabitsForDate = await userHabitsModel.find({
           user_id: new mongoose.Types.ObjectId(user.user_id),
-          date: formattedDate,
+          // date: date,
+          date: {
+            $gte: todayDate,
+            $lt: tomorrow,
+          },
         });
 
         /** Find habits for the date */
         if (getHabitsForDate.length > 0) {
-
           /** if habits for the user for a particular date and habits for the user are same */
-          if (getHabitsForDate.length == habitForUser.length) {
+          if (getHabitsForDate.length === habitForUser.length) {
             const habits = await userHabitsModel
               .find({
                 user_id: new mongoose.Types.ObjectId(user.user_id),
-                date: formattedDate,
+                date: {
+                  $gte: todayDate,
+                  $lt: tomorrow,
+                },
               })
               .populate({
                 path: "habit_id",
@@ -175,9 +191,8 @@ module.exports = class userController {
               data: habits,
               status: 1,
             });
-          } 
-          else {
-          /** else find habits that are not present in userhabit list and ad them to the list */
+          } else {
+            /** else find habits that are not present in userhabit list and add them to the list */
             let missingHabits = findMissingHabits(
               habitForUser,
               getHabitsForDate
@@ -186,7 +201,7 @@ module.exports = class userController {
             for (let i = 0; i < missingHabits.length; i++) {
               let data = {
                 isCompleted: false,
-                date: formattedDate,
+                date: todayDate,
                 habit_id: missingHabits[i],
                 user_id: user.user_id,
               };
@@ -194,31 +209,34 @@ module.exports = class userController {
             }
             await userHabitsModel.insertMany(newHabits);
 
-            const getHabitsForDate = await userHabitsModel
+            const updatedHabits = await userHabitsModel
               .find({
                 user_id: new mongoose.Types.ObjectId(user.user_id),
-                date: formattedDate,
+                date: {
+                  $gte: todayDate,
+                  $lt: tomorrow,
+                },
               })
               .populate({
                 path: "habit_id",
                 select: "name",
               });
-            if (getHabitsForDate) {
+
+            if (updatedHabits) {
               res.status(200).send({
                 message: "Habit found successfully.",
-                data: getHabitsForDate,
+                data: updatedHabits,
                 status: 1,
               });
             }
           }
         } else {
-
-        /** Find there are no habits for the date then create*/
+          /** If there are no habits for the date, then create new ones */
           getHabitsForDate = [];
           for (let i = 0; i < habitForUser.length; i++) {
             let data = {
               isCompleted: false,
-              date: formattedDate,
+              date: todayDate,
               habit_id: habitForUser[i]?._id,
               user_id: user.user_id,
             };
@@ -227,10 +245,14 @@ module.exports = class userController {
           let addHabitForDate = await userHabitsModel.insertMany(
             getHabitsForDate
           );
+
           const habits = await userHabitsModel
             .find({
               user_id: new mongoose.Types.ObjectId(user.user_id),
-              date: formattedDate,
+              date: {
+                $gte: todayDate,
+                $lt: tomorrow,
+              },
             })
             .populate({
               path: "habit_id",
@@ -256,17 +278,20 @@ module.exports = class userController {
     try {
       let user = req.user;
       const { _id, isCompleted, date } = req.body;
+      let todayDate = req.body.date ? new Date(req.body.date) : new Date();
+      todayDate.setHours(0, 0, 0, 0);
       let habitForUser = await userHabitsModel.findOne({
         _id: new mongoose.Types.ObjectId(_id),
         user_id: new mongoose.Types.ObjectId(user.user_id),
-        date: date,
+        date: todayDate
       });
       if (!habitForUser) {
         res.status(400).json({ message: "No habit found for this user" });
       } else {
-        console.log(JSON.parse(isCompleted))
+        console.log(JSON.parse(isCompleted));
         await userHabitsModel.findByIdAndUpdate(
-          {_id: new mongoose.Types.ObjectId(_id) },{ isCompleted: !JSON.parse(isCompleted)}
+          { _id: new mongoose.Types.ObjectId(_id) },
+          { isCompleted: !JSON.parse(isCompleted) }
         );
         res.json({ message: "status changes successfully." });
       }
@@ -283,33 +308,48 @@ module.exports = class userController {
     const { habit_id } = req.body;
     const user = req.user;
     try {
-      let habitsLast7Days = await userHabitsModel.find({
-        habit_id: new mongoose.Types.ObjectId(habit_id),
-        user_id: new mongoose.Types.ObjectId(user.user_id),
-        date: { $gte: sevenDaysAgo, $lte: today },
+      const habitData = await userHabitsModel.aggregate([
+        {
+          $match: {
+            habit_id: new mongoose.Types.ObjectId(habit_id),
+            user_id: new mongoose.Types.ObjectId(user.user_id),
+            date: { $gte: sevenDaysAgo, $lte: today },
+          }
+        },
+        {
+          $lookup: {
+            from: 'habits', // Replace with the actual collection name of the habits
+            localField: 'habit_id',
+            foreignField: '_id',
+            as: 'habit'
+          }
+        },
+        {
+          $unwind: '$habit' // If habit is an array due to lookup, unwind it to get the object
+        },
+        {
+          $group: {
+            _id: "$habit_id",
+            habitName: { $first: "$habit.name" },
+            isCompleted: { $push: "$isCompleted" },
+            dates: { $push: "$date" }
+          }
+        }
+      ]);
+  
+      if (habitData.length === 0) {
+        return res.status(404).json({ message: "Habit data not found." });
+      }
+  
+      res.status(200).json({
+        message: "Data found successfully.",
+        data: habitData[0], // Since there's only one entry for the habit_id, we access it at index 0
+        totalDays: habitData[0].dates.length,
+        completedDays: habitData[0].isCompleted.filter(value => value).length,
       });
-
-      let totalDays = await userHabitsModel.find({
-        habit_id: new mongoose.Types.ObjectId(habit_id),
-        user_id: new mongoose.Types.ObjectId(user.user_id),
-      });
-      let totalCompleteDays = await userHabitsModel.find({
-        habit_id: new mongoose.Types.ObjectId(habit_id),
-        user_id: new mongoose.Types.ObjectId(user.user_id),
-        isCompleted: true,
-      });
-
-      res
-        .status(200)
-        .json({
-          message: "data found successfully.",
-          data: habitsLast7Days,
-          total: totalDays.length,
-          completed: totalCompleteDays.length,
-        });
     } catch (error) {
       console.error("Error fetching habit details:", error);
-      throw error;
+      res.status(500).json({ message: "Internal server error." });
     }
   }
 };
