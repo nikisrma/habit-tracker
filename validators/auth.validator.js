@@ -1,6 +1,5 @@
 const { body, validationResult } = require("express-validator");
 const userModel = require("../models/user.model");
-const HabitsModel = require("../models/habit.model");
 const userHabitsModel = require("../models/user_habit.model")
 const { default: mongoose } = require("mongoose");
 

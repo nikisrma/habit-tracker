@@ -1,6 +1,6 @@
 const token = localStorage.getItem("token");
 
-async function addHabitSubmit(data) {
+async function addHabitSubmit() {
     try {
     const habit = document.getElementById("habit").value;
   

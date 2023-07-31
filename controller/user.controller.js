@@ -13,15 +13,6 @@ function findMissingHabits(habitArray, userHabitArray) {
   return missingHabitIds;
 }
 
-function getCurrentDate(date = new Date()) {
-  const currentDate = new Date(date);
-  const year = currentDate.getFullYear();
-  const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-  const day = String(currentDate.getDate()).padStart(2, "0");
-
-  const formattedDate = `${year}-${month}-${day}`;
-  return formattedDate;
-}
 
 module.exports = class userController {
   static async register(req, res, next) {
@@ -74,7 +65,7 @@ module.exports = class userController {
       }
     }
   }
-  /**********************************Login Ends *************************************************************** */
+  /*********************************Add Default Habits *************************************************************** */
 
   static async addDefaultHabit(req, res) {
     try {
@@ -114,6 +105,7 @@ module.exports = class userController {
     }
   }
 
+  /**********************************Add Habit *************************************************************** */
   static async addHabit(req, res) {
     try {
       const new_habit = req.body.habit;
@@ -141,13 +133,14 @@ module.exports = class userController {
     }
   }
 
+
+  /**********************************Get Habit List*************************************************************** */
   static async getHabitsList(req, res) {
     try {
       let todayDate = req.body.date ? new Date(req.body.date) : new Date();
-      // const formattedDate = getCurrentDate(date);
-      todayDate.setHours(0, 0, 0, 0); // Set time to start of the day (00:00:00.000)
+      todayDate.setHours(0, 0, 0, 0); 
       const tomorrow = new Date(todayDate);
-      tomorrow.setDate(todayDate.getDate() + 1); // Set time to start of the next day (00:00:00.000)
+      tomorrow.setDate(todayDate.getDate() + 1); 
 
       let user = req.user;
 
@@ -162,7 +155,6 @@ module.exports = class userController {
         var getHabitsForDate = [];
         getHabitsForDate = await userHabitsModel.find({
           user_id: new mongoose.Types.ObjectId(user.user_id),
-          // date: date,
           date: {
             $gte: todayDate,
             $lt: tomorrow,
@@ -274,6 +266,7 @@ module.exports = class userController {
     }
   }
 
+  /**********************************Change Habit Status *************************************************************** */
   static async changeHabitStatus(req, res) {
     try {
       let user = req.user;
@@ -300,7 +293,8 @@ module.exports = class userController {
       res.status(500).json({ message: "Internal server error." });
     }
   }
-
+/**********************************Get habit detail*************************************************************** */
+  
   static async getHabitsLast7Days(req, res) {
     const today = new Date();
     const sevenDaysAgo = new Date(today);
@@ -318,14 +312,14 @@ module.exports = class userController {
         },
         {
           $lookup: {
-            from: 'habits', // Replace with the actual collection name of the habits
+            from: 'habits',
             localField: 'habit_id',
             foreignField: '_id',
             as: 'habit'
           }
         },
         {
-          $unwind: '$habit' // If habit is an array due to lookup, unwind it to get the object
+          $unwind: '$habit' 
         },
         {
           $group: {
@@ -343,12 +337,12 @@ module.exports = class userController {
   
       res.status(200).json({
         message: "Data found successfully.",
-        data: habitData[0], // Since there's only one entry for the habit_id, we access it at index 0
+        data: habitData[0], 
         totalDays: habitData[0].dates.length,
         completedDays: habitData[0].isCompleted.filter(value => value).length,
       });
     } catch (error) {
-      console.error("Error fetching habit details:", error);
+      console.error("Error", error);
       res.status(500).json({ message: "Internal server error." });
     }
   }

@@ -1,5 +1,5 @@
 
-async function registerFormSubmit(data) {
+async function registerFormSubmit() {
 
     try {
     const name = document.getElementById("name").value;

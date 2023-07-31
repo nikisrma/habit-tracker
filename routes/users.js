@@ -3,6 +3,8 @@ var router = express.Router();
 const authValidator = require("../validators/auth.validator")
 const userController = require("../controller/user.controller")
 const authMiddleware = require("../middleware/middleware")
+
+
 router.post('/register', authValidator.validateBody,userController.register);
 router.post('/login', authValidator.validateLogin,userController.login);
 router.post('/add-default-habit',authMiddleware,userController.addDefaultHabit);
